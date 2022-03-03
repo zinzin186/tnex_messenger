@@ -30,12 +30,12 @@ private struct HashableItem: Hashable {
 
     init(_ decoratedChatItem: DecoratedChatItem) {
         self.uid = decoratedChatItem.uid
-        self.type = decoratedChatItem.chatItem.type
+        self.type = "\(decoratedChatItem.chatItem.type)"
     }
 
     init(_ chatItemCompanion: ChatItemCompanion) {
         self.uid = chatItemCompanion.uid
-        self.type = chatItemCompanion.chatItem.type
+        self.type = "\(chatItemCompanion.chatItem.type)"
     }
 }
 
@@ -66,6 +66,29 @@ extension BaseChatViewController {
         })
     }
 
+    public func enqueueModelUpdate(at indexPath: IndexPath, updateType: UpdateType, completion: (() -> Void)? = nil) {
+        if self.updatesConfig.coalesceUpdates {
+            self.updateQueue.flushQueue()
+        }
+        self.updateQueue.addTask({ [weak self] (runNextTask) -> Void in
+            guard let sSelf = self else { return }
+            var reloadedIndexPaths = Set<IndexPath>()
+            reloadedIndexPaths.insert(indexPath)
+            let changes = CollectionChanges(insertedIndexPaths: Set<IndexPath>(), deletedIndexPaths: Set<IndexPath>(), reloadedIndexPaths: reloadedIndexPaths, movedIndexPaths: [])
+            sSelf.updateModels(changes: changes, updateType: updateType) {
+                guard let sSelf = self else { return }
+                if sSelf.updateQueue.isEmpty {
+                    sSelf.enqueueMessageCountReductionIfNeeded()
+                }
+                completion?()
+                DispatchQueue.main.async(execute: { () -> Void in
+                    // Reduces inconsistencies before next update: https://github.com/diegosanchezr/UICollectionViewStressing
+                    runNextTask()
+                })
+            }
+        })
+    }
+    
     public func enqueueMessageCountReductionIfNeeded() {
         guard let preferredMaxMessageCount = self.constants.preferredMaxMessageCount, (self.chatDataSource?.chatItems.count ?? 0) > preferredMaxMessageCount else { return }
         self.updateQueue.addTask { [weak self] (completion) -> Void in
@@ -142,7 +165,7 @@ extension BaseChatViewController {
 
     private enum ScrollAction {
         case scrollToBottom
-        case preservePosition(rectForReferenceIndexPathBeforeUpdate: CGRect?, referenceIndexPathAfterUpdate: IndexPath?)
+        case preservePosition(rectForReferenceIndexPathBeforeUpdate: CGRect?, referenceIndexPathAfterUpdate: IndexPath?, animation: Bool)
     }
 
     func performBatchUpdates(updateModelClosure: @escaping () -> Void, // swiftlint:disable:this cyclomatic_complexity
@@ -156,7 +179,7 @@ extension BaseChatViewController {
         let usesBatchUpdates: Bool
         do { // Recover from too fast updates...
             let visibleCellsAreValid = self.visibleCellsAreValid(changes: changes)
-            let wantsReloadData = updateType != .normal
+            let wantsReloadData = (updateType != .normal && updateType != .expand)
             let hasUnfinishedBatchUpdates = self.unfinishedBatchUpdatesCount > 0 // This can only happen when enabling self.updatesConfig.fastUpdates
 
             // a) It's unsafe to perform reloadData while there's a performBatchUpdates animating: https://github.com/diegosanchezr/UICollectionViewStressing/tree/master/GhostCells
@@ -182,9 +205,16 @@ extension BaseChatViewController {
             if updateType != .pagination && self.isScrolledAtBottom() {
                 scrollAction = .scrollToBottom
             } else {
-                let (oldReferenceIndexPath, newReferenceIndexPath) = self.referenceIndexPathsToRestoreScrollPositionOnUpdate(itemsBeforeUpdate: self.chatItemCompanionCollection, changes: changes)
-                let oldRect = self.rectAtIndexPath(oldReferenceIndexPath)
-                scrollAction = .preservePosition(rectForReferenceIndexPathBeforeUpdate: oldRect, referenceIndexPathAfterUpdate: newReferenceIndexPath)
+                if updateType == .expand {
+                    let (oldReferenceIndexPath, newReferenceIndexPath) = self.referenceIndexPathsToRestoreScrollPositionOnUpdate(itemsBeforeUpdate: self.chatItemCompanionCollection, changes: changes)
+                    let oldRect = self.rectAtIndexPath(oldReferenceIndexPath)
+                    scrollAction = .preservePosition(rectForReferenceIndexPathBeforeUpdate: oldRect, referenceIndexPathAfterUpdate: newReferenceIndexPath, animation: true)
+                } else {
+                    let (oldReferenceIndexPath, newReferenceIndexPath) = self.referenceIndexPathsToRestoreScrollPositionOnUpdate(itemsBeforeUpdate: self.chatItemCompanionCollection, changes: changes)
+                    let oldRect = self.rectAtIndexPath(oldReferenceIndexPath)
+                    scrollAction = .preservePosition(rectForReferenceIndexPathBeforeUpdate: oldRect, referenceIndexPathAfterUpdate: newReferenceIndexPath, animation: false)
+                }
+                
             }
         }
 
@@ -234,15 +264,17 @@ extension BaseChatViewController {
 
         switch scrollAction {
         case .scrollToBottom:
-            self.scrollToBottom(animated: updateType == .normal)
-        case .preservePosition(rectForReferenceIndexPathBeforeUpdate: let oldRect, referenceIndexPathAfterUpdate: let indexPath):
+            let animated: Bool = updateType == .normal || updateType == .expand
+            self.scrollToBottom(animated: animated)
+        case .preservePosition(rectForReferenceIndexPathBeforeUpdate: let oldRect, referenceIndexPathAfterUpdate: let indexPath, let animation):
             let newRect = self.rectAtIndexPath(indexPath)
-            self.scrollToPreservePosition(oldRefRect: oldRect, newRefRect: newRect)
+            self.scrollToPreservePosition(oldRefRect: oldRect, newRefRect: newRect, animation: animation)
         }
-
-        if !usesBatchUpdates || self.updatesConfig.fastUpdates {
-            myCompletion()
-        }
+        
+        myCompletion()
+//        if !usesBatchUpdates || self.updatesConfig.fastUpdates {
+//            myCompletion()
+//        }
     }
 
     private func updateModels(newItems: [ChatItemProtocol], oldItems: ChatItemCompanionCollection, updateType: UpdateType, completion: @escaping () -> Void) {
@@ -275,14 +307,46 @@ extension BaseChatViewController {
 
         if performInBackground {
             DispatchQueue.global(qos: .userInitiated).async { () -> Void in
-                let modelUpdate = createModelUpdate()
                 DispatchQueue.main.async(execute: { () -> Void in
+                    let modelUpdate = createModelUpdate()
                     perfomBatchUpdates(modelUpdate.changes, modelUpdate.updateModelClosure)
                 })
             }
         } else {
             let modelUpdate = createModelUpdate()
             perfomBatchUpdates(modelUpdate.changes, modelUpdate.updateModelClosure)
+        }
+    }
+    
+    private func updateModels(changes: CollectionChanges, updateType: UpdateType, completion: @escaping () -> Void) {
+        let updateType = self.isFirstLayout ? .firstLoad : updateType
+        let performInBackground = updateType != .firstLoad
+
+        self.autoLoadingEnabled = false
+        let perfomBatchUpdates: (_ changes: CollectionChanges, _ updateModelClosure: @escaping () -> Void) -> Void  = { [weak self] (changes, updateModelClosure) in
+            self?.performBatchUpdates(
+                updateModelClosure: updateModelClosure,
+                changes: changes,
+                updateType: updateType,
+                completion: { () -> Void in
+                    self?.autoLoadingEnabled = true
+                    completion()
+            })
+        }
+
+        let updateModelClosure : () -> Void = { [weak self] in
+//            self?.layoutModel = layoutModel
+            self?.updateDataMessage()
+        }
+
+        if performInBackground {
+            DispatchQueue.global(qos: .userInitiated).async { () -> Void in
+                DispatchQueue.main.async(execute: { () -> Void in
+                    perfomBatchUpdates(changes, updateModelClosure)
+                })
+            }
+        } else {
+            perfomBatchUpdates(changes, updateModelClosure)
         }
     }
 
@@ -295,6 +359,7 @@ extension BaseChatViewController {
         let updateModelClosure : () -> Void = { [weak self] in
             self?.layoutModel = layoutModel
             self?.chatItemCompanionCollection = itemCompanionCollection
+            self?.updateDataMessage()
         }
         return (changes, updateModelClosure)
     }
@@ -361,7 +426,7 @@ extension BaseChatViewController {
         }
         return createLayoutModel(intermediateLayoutData: intermediateLayoutData)
     }
-
+    
     public func chatCollectionViewLayoutModel() -> ChatCollectionViewLayoutModel {
         guard let collectionView = self.collectionView else { return self.layoutModel }
         if self.layoutModel.calculatedForWidth != collectionView.bounds.width {

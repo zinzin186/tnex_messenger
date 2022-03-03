@@ -44,11 +44,13 @@ public func == (lhs: CollectionChangeMove, rhs: CollectionChangeMove) -> Bool {
 public struct CollectionChanges {
     public let insertedIndexPaths: Set<IndexPath>
     public let deletedIndexPaths: Set<IndexPath>
+    public let reloadedIndexPaths: Set<IndexPath>
     public let movedIndexPaths: [CollectionChangeMove]
 
-    init(insertedIndexPaths: Set<IndexPath>, deletedIndexPaths: Set<IndexPath>, movedIndexPaths: [CollectionChangeMove]) {
+    init(insertedIndexPaths: Set<IndexPath>, deletedIndexPaths: Set<IndexPath>, reloadedIndexPaths: Set<IndexPath> = Set<IndexPath>(), movedIndexPaths: [CollectionChangeMove]) {
         self.insertedIndexPaths = insertedIndexPaths
         self.deletedIndexPaths = deletedIndexPaths
+        self.reloadedIndexPaths = reloadedIndexPaths
         self.movedIndexPaths = movedIndexPaths
     }
 }
@@ -105,7 +107,16 @@ func updated<T: Any>(collection: [IndexPath: T], withChanges changes: Collection
     changes.deletedIndexPaths.forEach { (indexPath) in
         result[indexPath] = nil
     }
-
+    //Update when reload item
+    var reloadedDestinations = [IndexPath: T]()
+    changes.reloadedIndexPaths.forEach { (indexPath) in
+        if let item = result[indexPath] {
+            reloadedDestinations[indexPath] = item
+        }
+    }
+    if reloadedDestinations.count > 0 {
+        return reloadedDestinations
+    }
     var movedDestinations = Set<IndexPath>()
     changes.movedIndexPaths.forEach { (move) in
         result[move.indexPathNew] = collection[move.indexPathOld]

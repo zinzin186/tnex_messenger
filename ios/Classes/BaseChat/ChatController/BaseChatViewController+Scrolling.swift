@@ -110,13 +110,20 @@ extension BaseChatViewController {
         }
     }
 
-    public func scrollToPreservePosition(oldRefRect: CGRect?, newRefRect: CGRect?) {
+    public func scrollToPreservePosition(oldRefRect: CGRect?, newRefRect: CGRect?, animation: Bool) {
         guard let collectionView = self.collectionView else { return }
         guard let oldRefRect = oldRefRect, let newRefRect = newRefRect else {
             return
         }
         let diffY = newRefRect.minY - oldRefRect.minY
-        collectionView.contentOffset = CGPoint(x: 0, y: collectionView.contentOffset.y + diffY)
+        if animation {
+            UIView.animate(withDuration: self.constants.updatesAnimationDuration, animations: { () -> Void in
+                collectionView.contentOffset = CGPoint(x: 0, y: collectionView.contentOffset.y + diffY)
+            })
+        } else {
+            let diffY = newRefRect.minY - oldRefRect.minY
+            collectionView.contentOffset = CGPoint(x: 0, y: collectionView.contentOffset.y + diffY)
+        }
     }
 
     public func scrollToItem(withId itemId: String,

@@ -37,14 +37,15 @@ class ChatDetailViewController: BaseChatViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        DispatchQueue.main.async {[weak self] in
-            self?.addHeaderView()
-        }
+//        DispatchQueue.main.async {[weak self] in
+//            self?.addHeaderView()
+//        }
         
         self.cellPanGestureHandlerConfig.allowReplyRevealing = true
         self.messagesSelector.delegate = self
         self.chatItemsDecorator = TnexChatItemsDecorator(messagesSelector: self.messagesSelector)
         self.replyActionHandler = TnexReplyActionHandler(presentingViewController: self)
+        self.collectionView?.backgroundColor = UIColor(red: 0.008, green: 0.0, blue: 0.212, alpha: 1)
 //        self.changeCollectionViewTopMarginTo(-ChatHeaderView.headerBarHeight, duration: 0.3)
         self.collectionView?.layoutIfNeeded()
         inputContentContainer.backgroundColor = .clear
@@ -99,6 +100,7 @@ class ChatDetailViewController: BaseChatViewController {
         
         return chatInputView
     }
+    
 
     override func createPresenterBuilders() -> [ChatItemType: [ChatItemPresenterBuilderProtocol]] {
 

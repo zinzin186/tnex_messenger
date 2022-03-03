@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/tnex_messenger.iml" filepath="$PROJECT_DIR$/tnex_messenger.iml" />
+      <module fileurl="file://$PROJECT_DIR$/android/tnex_messenger_android.iml" filepath="$PROJECT_DIR$/android/tnex_messenger_android.iml" />
+      <module fileurl="file://$PROJECT_DIR$/example/android/tnex_messenger_example_android.iml" filepath="$PROJECT_DIR$/example/android/tnex_messenger_example_android.iml" />
+    </modules>
+  </component>
+</project>

@@ -15,6 +15,7 @@ A new flutter plugin project.
   s.source           = { :path => '.' }
   s.source_files = 'Classes/**/*.{swift,xib,pdf,png}'
   s.resource_bundles = ["Classes/*/*.{png,xib,xcassets}", "Classes/*/*/*.{png,xib,xcassets}", "Classes/*/*/*/*.{png,xib,xcassets}", "Classes/*/*/*/*/*.{png,xib,xcassets}"]
+  s.resources = 'Assets/*.png'
   s.dependency 'Flutter'
   s.platform = :ios, '11.0'
 

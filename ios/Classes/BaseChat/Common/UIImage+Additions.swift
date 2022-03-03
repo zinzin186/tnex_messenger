@@ -23,12 +23,13 @@
  */
 
 import UIKit
+import CoreGraphics
 
 public extension UIImage {
     func bma_tintWithColor(_ color: UIColor) -> UIImage {
         let rect = CGRect(origin: CGPoint.zero, size: self.size)
         UIGraphicsBeginImageContextWithOptions(rect.size, false, self.scale)
-        let context = UIGraphicsGetCurrentContext()!
+        guard let context = UIGraphicsGetCurrentContext() else { return self }
         color.setFill()
         context.fill(rect)
         self.draw(in: rect, blendMode: .destinationIn, alpha: 1)
@@ -40,7 +41,7 @@ public extension UIImage {
     func bma_blendWithColor(_ color: UIColor) -> UIImage {
         let rect = CGRect(origin: CGPoint.zero, size: self.size)
         UIGraphicsBeginImageContextWithOptions(rect.size, false, UIScreen.main.scale)
-        let context = UIGraphicsGetCurrentContext()!
+        guard let context = UIGraphicsGetCurrentContext() else { return self }
         context.translateBy(x: 0, y: rect.height)
         context.scaleBy(x: 1.0, y: -1.0)
         context.setBlendMode(.normal)

@@ -78,10 +78,10 @@ open class TextMessageCollectionViewCellDefaultStyle: TextMessageCollectionViewC
 
     lazy private var images: [ImageKey: UIImage] = {
         return [
-            .template(isIncoming: true, showsTail: true): self.bubbleImages.incomingTail(),
-            .template(isIncoming: true, showsTail: false): self.bubbleImages.incomingNoTail(),
-            .template(isIncoming: false, showsTail: true): self.bubbleImages.outgoingTail(),
-            .template(isIncoming: false, showsTail: false): self.bubbleImages.outgoingNoTail()
+            .template(isIncoming: true, showsTail: true): self.bubbleImages.incomingTail() ?? UIImage(),
+            .template(isIncoming: true, showsTail: false): self.bubbleImages.incomingNoTail() ?? UIImage(),
+            .template(isIncoming: false, showsTail: true): self.bubbleImages.outgoingTail() ?? UIImage(),
+            .template(isIncoming: false, showsTail: false): self.bubbleImages.outgoingNoTail() ?? UIImage()
         ]
     }()
 
@@ -150,10 +150,10 @@ public extension TextMessageCollectionViewCellDefaultStyle { // Default values
 
     static func createDefaultBubbleImages() -> BubbleImages {
         return BubbleImages(
-            incomingTail: UIImage(named: "bubble-incoming-tail", in: Bundle.resources, compatibleWith: nil)!,
-            incomingNoTail: UIImage(named: "bubble-incoming", in: Bundle.resources, compatibleWith: nil)!,
-            outgoingTail: UIImage(named: "bubble-outgoing-tail", in: Bundle.resources, compatibleWith: nil)!,
-            outgoingNoTail: UIImage(named: "bubble-outgoing", in: Bundle.resources, compatibleWith: nil)!
+            incomingTail: UIImage(named: "bubble-incoming-tail", in: Bundle.resources, compatibleWith: nil) ?? UIImage(),
+            incomingNoTail: UIImage(named: "bubble-incoming", in: Bundle.resources, compatibleWith: nil) ?? UIImage(),
+            outgoingTail: UIImage(named: "bubble-outgoing-tail", in: Bundle.resources, compatibleWith: nil) ?? UIImage(),
+            outgoingNoTail: UIImage(named: "bubble-outgoing", in: Bundle.resources, compatibleWith: nil) ?? UIImage()
         )
     }
 

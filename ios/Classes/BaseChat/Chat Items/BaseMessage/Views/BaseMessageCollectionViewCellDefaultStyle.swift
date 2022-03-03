@@ -203,16 +203,16 @@ public extension BaseMessageCollectionViewCellDefaultStyle { // Default values
 
     static func createDefaultBubbleBorderImages() -> BubbleBorderImages {
         return BubbleBorderImages(
-            borderIncomingTail: UIImage(named: "bubble-incoming-border-tail", in: Bundle.resources, compatibleWith: nil)!,
-            borderIncomingNoTail: UIImage(named: "bubble-incoming-border", in: Bundle.resources, compatibleWith: nil)!,
-            borderOutgoingTail: UIImage(named: "bubble-outgoing-border-tail", in: Bundle.resources, compatibleWith: nil)!,
-            borderOutgoingNoTail: UIImage(named: "bubble-outgoing-border", in: Bundle.resources, compatibleWith: nil)!
+            borderIncomingTail: UIImage(named: "bubble-incoming-border-tail", in: Bundle.resources, compatibleWith: nil) ?? UIImage(),
+            borderIncomingNoTail: UIImage(named: "bubble-incoming-border", in: Bundle.resources, compatibleWith: nil) ?? UIImage(),
+            borderOutgoingTail: UIImage(named: "bubble-outgoing-border-tail", in: Bundle.resources, compatibleWith: nil) ?? UIImage(),
+            borderOutgoingNoTail: UIImage(named: "bubble-outgoing-border", in: Bundle.resources, compatibleWith: nil) ?? UIImage()
         )
     }
 
     static func createDefaultFailedIconImages() -> FailedIconImages {
         let normal = {
-            return Bundle.imageFromBundle(imageName: "base-message-failed-icon")!
+            return Bundle.imageFromBundle(imageName: "base-message-failed-icon") ?? UIImage()
         }
         return FailedIconImages(
             normal: normal(),
@@ -231,8 +231,8 @@ public extension BaseMessageCollectionViewCellDefaultStyle { // Default values
                                                             maxContainerWidthPercentageForBubbleView: 0.68)
     }
 
-    private static let selectionIndicatorIconSelected = UIImage(named: "base-message-checked-icon", in: Bundle.resources, compatibleWith: nil)!.bma_tintWithColor(BaseMessageCollectionViewCellDefaultStyle.defaultOutgoingColor)
-    private static let selectionIndicatorIconDeselected = UIImage(named: "base-message-unchecked-icon", in: Bundle.resources, compatibleWith: nil)!.bma_tintWithColor(UIColor.bma_color(rgb: 0xC6C6C6))
+    private static let selectionIndicatorIconSelected = (UIImage(named: "base-message-checked-icon", in: Bundle.resources, compatibleWith: nil) ?? UIImage()).bma_tintWithColor(BaseMessageCollectionViewCellDefaultStyle.defaultOutgoingColor)
+    private static let selectionIndicatorIconDeselected = (UIImage(named: "base-message-unchecked-icon", in: Bundle.resources, compatibleWith: nil) ?? UIImage()).bma_tintWithColor(UIColor.bma_color(rgb: 0xC6C6C6))
 
     static func createDefaultSelectionIndicatorStyle() -> SelectionIndicatorStyle {
         return SelectionIndicatorStyle(

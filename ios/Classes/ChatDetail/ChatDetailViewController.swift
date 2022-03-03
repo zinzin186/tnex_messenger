@@ -80,7 +80,7 @@ class ChatDetailViewController: BaseChatViewController {
         let chatInputView = TnexContainerInputBar.loadNib()
         chatInputView.backgroundColor = .clear
         let backgroundInputView = UIImageView()
-        backgroundInputView.image = UIImage(named: "chat_inputbar_background")
+        backgroundInputView.image = UIImage(named: "chat_inputbar_background", in: Bundle.resources, compatibleWith: nil)
         backgroundInputView.contentMode = .scaleToFill
         backgroundInputView.clipsToBounds = true
         chatInputView.addSubview(backgroundInputView)

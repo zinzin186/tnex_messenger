@@ -112,8 +112,8 @@ open class PhotoMessageCollectionViewCellDefaultStyle: PhotoMessageCollectionVie
         return UIImage.bma_imageWithColor(self.baseStyle.baseColorOutgoing, size: CGSize(width: 1, height: 1))
     }()
 
-    lazy private var placeholderIcon: UIImage = {
-        return UIImage(named: "photo-bubble-placeholder-icon", in: Bundle.resources, compatibleWith: nil)!
+    lazy private var placeholderIcon: UIImage? = {
+        return UIImage(named: "chat-photo-placeholder.png", in: Bundle.resources, compatibleWith: nil)
     }()
 
     open func maskingImage(viewModel: PhotoMessageViewModelProtocol) -> UIImage {
@@ -138,7 +138,7 @@ open class PhotoMessageCollectionViewCellDefaultStyle: PhotoMessageCollectionVie
     }
 
     open func placeholderIconImage(viewModel: PhotoMessageViewModelProtocol) -> UIImage {
-        return self.placeholderIcon
+        return self.placeholderIcon ?? UIImage()
     }
 
     open func placeholderIconTintColor(viewModel: PhotoMessageViewModelProtocol) -> UIColor {
@@ -176,10 +176,10 @@ public extension PhotoMessageCollectionViewCellDefaultStyle { // Default values
 
     static func createDefaultBubbleMasks() -> BubbleMasks {
         return BubbleMasks(
-            incomingTail: UIImage(named: "bubble-incoming-tail", in: Bundle.resources, compatibleWith: nil)!,
-            incomingNoTail: UIImage(named: "bubble-incoming", in: Bundle.resources, compatibleWith: nil)!,
-            outgoingTail: UIImage(named: "bubble-outgoing-tail", in: Bundle.resources, compatibleWith: nil)!,
-            outgoingNoTail: UIImage(named: "bubble-outgoing", in: Bundle.resources, compatibleWith: nil)!,
+            incomingTail: UIImage(named: "bubble-incoming-tail", in: Bundle.resources, compatibleWith: nil) ?? UIImage(),
+            incomingNoTail: UIImage(named: "bubble-incoming", in: Bundle.resources, compatibleWith: nil) ?? UIImage(),
+            outgoingTail: UIImage(named: "bubble-outgoing-tail", in: Bundle.resources, compatibleWith: nil) ?? UIImage(),
+            outgoingNoTail: UIImage(named: "bubble-outgoing", in: Bundle.resources, compatibleWith: nil) ?? UIImage(),
             tailWidth: 6
         )
     }

@@ -24,14 +24,16 @@ class ChatHeaderView: UIView {
     
     private lazy var imageView: UIImageView = {
         let imgView = UIImageView.newAutoLayout()
-        imgView.image = UIImage(named: "chat_header_banner")
+        let image = UIImage(named: "chat_header_banner", in: Bundle.resources, compatibleWith: nil)
+        imgView.image = image
         return imgView
     }()
     
     lazy var backButton: UIButton = {
         let button = UIButton(type: .custom)
         button.addTarget(self, action: #selector(ChatHeaderView.actionBack), for: .touchUpInside)
-        button.setImage(UIImage(named: "chat_button_back"), for: .normal)
+        let image = UIImage(named: "chat_button_back", in: Bundle.resources, compatibleWith: nil)
+        button.setImage(image, for: .normal)
         button.autoSetDimension(.width, toSize: 44)
         button.backgroundColor = UIColor.clear
         button.imageEdgeInsets = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
@@ -44,7 +46,8 @@ class ChatHeaderView: UIView {
     lazy var menuRightButton: UIButton = {
         let button = UIButton(type: .custom)
         button.addTarget(self, action: #selector(ChatHeaderView.showMenu), for: .touchUpInside)
-        button.setImage(UIImage(named: "chat_button_menu_right"), for: .normal)
+        let image = UIImage(named: "chat_button_menu_right", in: Bundle.resources, compatibleWith: nil)
+        button.setImage(image, for: .normal)
         button.autoSetDimension(.width, toSize: 44)
         button.backgroundColor = UIColor.clear
         button.imageEdgeInsets = UIEdgeInsets(top: 5, left: 5, bottom: 5, right: 5)

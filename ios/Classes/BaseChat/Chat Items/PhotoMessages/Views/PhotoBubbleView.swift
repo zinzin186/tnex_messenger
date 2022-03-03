@@ -163,6 +163,7 @@ open class PhotoBubbleView: UIView, MaximumLayoutWidthSpecificable, BackgroundSi
         } else if let urlString = self.photoMessageViewModel.mediaItem.urlString {
             self.placeholderIconView.isHidden = true
             self.imageView.setThumbMessage(url: urlString)
+            imageView.backgroundColor = .red
         } else {
             self.imageView.image = self.photoMessageStyle.placeholderBackgroundImage(viewModel: self.photoMessageViewModel)
             self.placeholderIconView.isHidden = self.photoMessageViewModel.transferStatus.value != .failed

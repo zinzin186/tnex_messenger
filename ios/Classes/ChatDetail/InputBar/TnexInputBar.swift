@@ -19,7 +19,7 @@ class TnexInputBar: InputBarAccessoryView {
         .configure {
             $0.spacing = .none
             $0.contentMode = .scaleAspectFill
-            $0.image = UIImage(named: "chat_inpputbar_transfer")
+            $0.image = UIImage(named: "chat_inpputbar_transfer", in: Bundle.resources, compatibleWith: nil)
             $0.setSize(CGSize(width: 40, height: 40), animated: false)
         }
         .onTouchUpInside { [weak self] _ in
@@ -51,7 +51,7 @@ class TnexInputBar: InputBarAccessoryView {
             }
         }
         galleryButton.setSize(CGSize(width: 40, height: 40), animated: false)
-        galleryButton.setImage(UIImage(named: "chat_inputbar_gallerry"), for: .normal)
+        galleryButton.setImage(UIImage(named: "chat_inputbar_gallerry", in: Bundle.resources, compatibleWith: nil), for: .normal)
         galleryButton.imageView?.contentMode = .scaleAspectFit
         galleryButton.onTouchUpInside { [weak self] _ in
             print("Go to bank")
@@ -65,7 +65,7 @@ class TnexInputBar: InputBarAccessoryView {
             }
         }
         emojiButton.setSize(CGSize(width: 40, height: 40), animated: false)
-        emojiButton.setImage(UIImage(named: "chat_inputbar_emoji"), for: .normal)
+        emojiButton.setImage(UIImage(named: "chat_inputbar_emoji", in: Bundle.resources, compatibleWith: nil), for: .normal)
         emojiButton.imageView?.contentMode = .scaleAspectFit
         emojiButton.onTouchUpInside { [weak self] _ in
             print("Go to emoji")
@@ -85,7 +85,7 @@ class TnexInputBar: InputBarAccessoryView {
         
         sendButton.configure {
             $0.setSize(CGSize(width: 52, height: 36), animated: false)
-            $0.setImage(UIImage(named: "chat_avatar_default"), for: .normal)
+            $0.setImage(UIImage(named: "chat_avatar_default", in: Bundle.resources, compatibleWith: nil), for: .normal)
             $0.setTitle(nil, for: .normal)
         }.onEnabled { [weak self] (_) in
             self?.switchSend(show: false, animated: true)
